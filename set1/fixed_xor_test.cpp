@@ -35,10 +35,10 @@ TEST(FixedXor, Set1_3)
     float max = 0;
 
     /* try all possible keys and score result */
-    for(int key = 0; key < COUNT_OF(items); ++key)
+    for(unsigned long key = 0; key < COUNT_OF(items); ++key)
     {
         char new_msg[COUNT_OF(msg)] = {0};
-        for(int i = 0; i < COUNT_OF(new_msg); ++i)
+        for(unsigned long i = 0; i < COUNT_OF(new_msg); ++i)
         {
             items[key].plaintext[i] = msg[i] ^ key;
         }
@@ -84,12 +84,13 @@ TEST(FixedXor, Set1_4)
     } keyscore_t;
 
     keyscore_t linescore[400];
-    char plaintext[128];
+    char *plaintext = NULL;
 
     size_t line_size = 0;
     ssize_t nread = 0;
     char *line = NULL;
     int len = 0;
+    int out_len = 0;
     int line_count = 0;
     float max = 0;
     int solution = 0;
@@ -97,16 +98,15 @@ TEST(FixedXor, Set1_4)
     do {
         nread = getline(&line, &line_size, fp);
         len = nread - 1; // do not care about '\n' and '\0'
-        init_byte_array(plaintext, len);
-        decode_base16(line, len, plaintext, len);
+        plaintext = decode_base16(line, len, &out_len);
 
         float local_max = 0;
         int local_key = 0;
         float score = 0;
         for(unsigned char c = 0; c < 255; ++c)
         {
-            singlebyte_xor(plaintext, linescore[line_count].res, len, c);
-            score = score_text(linescore[line_count].res, len/2);
+            singlebyte_xor(plaintext, linescore[line_count].res, out_len, c);
+            score = score_text(linescore[line_count].res, out_len);
             if(score > local_max)
             {
                 local_max = score;
@@ -115,7 +115,7 @@ TEST(FixedXor, Set1_4)
         }
         linescore[line_count].key = local_key;
         linescore[line_count].score = local_max;
-        singlebyte_xor(plaintext, linescore[line_count].res, len, local_key);
+        singlebyte_xor(plaintext, linescore[line_count].res, out_len, local_key);
 
         if(local_max > max)
         {
@@ -127,7 +127,7 @@ TEST(FixedXor, Set1_4)
     } while (nread > 0);
 
     /* cut string */
-    for(int i = 0; i < COUNT_OF(linescore[solution].res); ++i)
+    for(unsigned long i = 0; i < COUNT_OF(linescore[solution].res); ++i)
     {
         if(linescore[solution].res[i] == '\n')
         {

@@ -8,34 +8,29 @@ extern "C" {
 
 TEST(DecodeBase16, GoodCase)
 {
-    char out[8];
-    init_byte_array(out, sizeof(out));
+    char *out = NULL;
+    int len = 0;
     /* single digit conversion */
-    decode_base16("A", 1, out, sizeof(out));
+    out = decode_base16("A", 1, &len);
     EXPECT_EQ(out[0], '\x0a');
-    decode_base16("f", 1, out, sizeof(out));
+    out = decode_base16("f", 1, &len);
     EXPECT_EQ(out[0], '\x0f');
 
     /* two digit conversion */
-    init_byte_array(out, sizeof(out));
-    decode_base16("AA", 2, out, sizeof(out));
+    out = decode_base16("AA", 2, &len);
     EXPECT_EQ(out[0], '\xaa');
-    init_byte_array(out, sizeof(out));
-    decode_base16("F0", 2, out, sizeof(out));
+    out = decode_base16("F0", 2, &len);
     EXPECT_EQ(out[0], '\xf0');
-    init_byte_array(out, sizeof(out));
-    decode_base16("AF", 2, out, sizeof(out));
+    out = decode_base16("AF", 2, &len);
     EXPECT_EQ(out[0], '\xaf');
 
     /* five digit conversion */
-    init_byte_array(out, sizeof(out));
-    decode_base16("AA55E", 5, out, sizeof(out));
+    out = decode_base16("AA55E", 5, &len);
     EXPECT_EQ(out[0], '\xaa');
     EXPECT_EQ(out[1], '\x55');
     EXPECT_EQ(out[2], '\xe0');
 
-    init_byte_array(out, sizeof(out));
-    decode_base16("fa0ce", 5, out, sizeof(out));
+    out = decode_base16("fa0ce", 5, &len);
     EXPECT_EQ(out[0], '\xfa');
     EXPECT_EQ(out[1], '\x0c');
     EXPECT_EQ(out[2], '\xe0');
@@ -43,15 +38,16 @@ TEST(DecodeBase16, GoodCase)
 
 TEST(DecodeBase16, EdgeCases)
 {
-    char out[8];
-    int ret = 0;
-    ret = decode_base16("AA", 2, out, 0);
-    EXPECT_EQ(ret, -1);
-    ret = decode_base16(NULL, 0, out, 2);
-    EXPECT_EQ(ret, -1);
-    ret = decode_base16("A", 1, NULL, 2);
-    EXPECT_EQ(ret, -1);
+    char *out = NULL;
+    int len = 0;
+    out = decode_base16(NULL, 0, &len);
+    EXPECT_EQ(out, nullptr);
+    out = decode_base16(NULL, 3, &len);
+    EXPECT_EQ(out, nullptr);
+    out = decode_base16("AA", 0, &len);
+    EXPECT_EQ(out, nullptr);
 }
+
 /*
 TEST(Base64Test, HexToBase64)
 {

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "base64_conversion.h"
 
@@ -70,15 +71,19 @@ static char encode_ascii_base16(unsigned char value)
 /* input: hex-encoded string with ASCII characters
  * output: binary data
  */
-int decode_base16(const char *in, const int in_len, char *out, int out_len)
+char *decode_base16(char const * const in, const int in_len, int *out_len)
 {
-	if(out_len < in_len / 2) return -1;
-	if(in == NULL || out == NULL) return -1;
+	if(in == NULL || in_len == 0) return NULL;
+
+	*out_len = in_len / 2 + 2;
+	char *out = calloc(*out_len, sizeof(char));
+	if(out == NULL) return NULL;
 
 	if(in_len == 1)
 	{
 		out[0] = decode_ascii_base16(in[0]);
-		return 0;
+		out[(*out_len) - 1] = '\0';
+		return out;
 	}
 
 	for(int i = 0; i < in_len / 2; i++)
@@ -92,7 +97,8 @@ int decode_base16(const char *in, const int in_len, char *out, int out_len)
 	{
 		out[(in_len - 1)/ 2] = decode_ascii_base16(in[in_len-1]) << 4;
 	}
-	return 0;
+	out[(*out_len) - 1] = '\0';
+	return out;
 }
 
 /* input: char * -> number as hex digits, ascii coded

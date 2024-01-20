@@ -48,6 +48,8 @@ static float letter_freq(char c)
 
 void singlebyte_xor(char const * const buf, char *res, const int len, const char key)
 {
+	if(buf == NULL) return;
+
 	for(int i = 0; i < len; ++i)
 	{
 		res[i] = buf[i] ^ key;

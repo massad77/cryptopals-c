@@ -10,7 +10,7 @@ int ascii_hex_to_base64(const char *in_num, int in_len, char *out_num, int out_l
  * output: char * -> number as hex digits, ascii coded
  */
 int ascii_base64_to_hex(const char *in_num, int in_len, char *out_num, int out_len);
-int decode_base16(const char *in_num, int in_len, char *out_num, int out_len);
+char *decode_base16(char const * const in, const int in_len, int *out_len);
 
 /* input: ascii encoded hex digit
  *  output: value
