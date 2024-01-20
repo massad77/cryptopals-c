@@ -38,8 +38,9 @@ int estimate_keysize(char const * const buf, const int len)
     float dist = 0;
     float dist_min = 2048*4;
     int keysize = -2;
+    const int MAX_KEYSIZE = 40;
 
-    for(int i = 2; i < len/4 && i < 40; ++i)
+    for(int i = 2; i < MAX_KEYSIZE; ++i)
     {
         dist = score_keysize(buf, len, i);
         if(dist > 0 && dist < dist_min)
