@@ -11,7 +11,6 @@ endif()
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable (set1 main.c base64_conversion.c)
-add_executable (test_base64_conversion test_base64_conversion.c base64_conversion.c)
 
 # Add googletest
 include(FetchContent)
@@ -27,8 +26,8 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(hello_test hello_test.cc)
-target_link_libraries(hello_test GTest::gtest_main)
+add_executable(base64_test base64_conversion_test.cpp base64_conversion.c)
+target_link_libraries(base64_test GTest::gtest_main)
 
 include(GoogleTest)
-gtest_discover_tests(hello_test)
+gtest_discover_tests(base64_test)
