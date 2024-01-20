@@ -83,7 +83,6 @@ char *decode_base64(char const * const in, const int in_len, int *out_len)
 	*out_len = (in_len * 6) / 8 + 2;
 	char *out = calloc(*out_len, sizeof(char));
 
-	/* padding is not considered */
 	int j = 0;
 	for(int i = 0; i < in_len; ++i)
 	{

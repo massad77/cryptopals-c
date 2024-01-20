@@ -61,6 +61,26 @@ TEST(DecodeBase64, Simple)
     free(out);
 }
 
+TEST(DecodeBase64, Padding)
+{
+    char in[] = "bGlnaHQgdw==";
+    char want[] = "light w";
+    char *out = NULL;
+    int len = 0;
+
+    out = decode_base64(in, COUNT_OF(in), &len);
+    EXPECT_STREQ(out, want);
+
+    char in1[] = "bGlnaHQgd28=";
+    char want1[] = "light wo";
+    out = NULL;
+
+    out = decode_base64(in1, COUNT_OF(in1), &len);
+    EXPECT_STREQ(out, want1);
+
+    free(out);
+}
+
 TEST(DecodeBase64, Set1)
 {
     char in[] = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t";
