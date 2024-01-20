@@ -90,10 +90,10 @@ float score_text(const char txt[], int size)
 
 char *XORencode(char const * const in, int len, char const * const key, int key_len)
 {
-	char *out = calloc(len, sizeof(char));
+	char *out = calloc(len+1, sizeof(char));
 
 	/* ignore '\0' at the end */
-	for(int i = 0, j = 0; i < len - 1; ++i)
+	for(int i = 0, j = 0; i < len; ++i)
 	{
 		out[i] = in[i] ^ key[j++];
 		j %= (key_len - 1);

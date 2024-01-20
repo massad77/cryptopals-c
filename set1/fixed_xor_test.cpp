@@ -148,7 +148,7 @@ TEST(FixedXor, Set1_5)
     char *res = NULL;
     char key[] = "ICE";
 
-    res = XORencode(in, COUNT_OF(in), key, COUNT_OF(key));
+    res = XORencode(in, COUNT_OF(in)-1, key, COUNT_OF(key)); // drop trailing '\0' from in
 
     EXPECT_STREQ(res, want);
 }
