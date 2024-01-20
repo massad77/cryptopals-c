@@ -9,6 +9,7 @@ endif()
 
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
+add_compile_options(-Wall -Wextra -Wpedantic)
 
 # Add googletest
 include(FetchContent)
