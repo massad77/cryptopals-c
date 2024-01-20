@@ -39,4 +39,4 @@ gtest_discover_tests(base64_test)
 gtest_discover_tests(fixed_xor_test)
 gtest_discover_tests(cryptopals_test)
 
-add_executable (set1 main.c base64_conversion.c fixed_xor.c)
+add_executable (encodebase64 encode_base64.c base64_conversion.c)

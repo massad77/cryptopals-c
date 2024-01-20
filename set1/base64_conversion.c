@@ -113,3 +113,53 @@ char *decode_base64(char const * const in, const int in_len, int *out_len)
 
 	return out;
 }
+
+/* input: binary
+ * output: base64 encoded string
+ */
+char *encode_base64(char const * const in, const int in_len, int *out_len)
+{
+	*out_len = ((in_len * 8) / 6) + 4;
+	char *out = calloc(*out_len, sizeof(char));
+
+	int i = 0;
+	int j = 0;
+	char carry = 0;
+	for(i = 0; i < in_len; ++i)
+	{
+		switch(i%3)
+		{
+			case 0:
+				out[j] = encode_ascii_base64((in[i] >> 2));
+				carry = in[i] & 0x03;
+				j++;
+				break;
+			case 1:
+				out[j] = encode_ascii_base64((carry << 4) | ((in[i] & 0xf0) >> 4));
+				carry = in[i] & 0x0f;
+				j++;
+				break;
+			case 2:
+				out[j] = encode_ascii_base64((carry << 2) | ((in[i] & 0xc0) >> 6));
+				j++;
+				out[j] = encode_ascii_base64(in[i] & 0x3f);
+				j++;
+				break;
+			default:
+				break;
+		}
+	}
+	/* padding */
+	if(i == 1)
+	{
+		out[j++] = encode_ascii_base64((in[i-1] & 0x03) << 4);
+		out[j++] = '=';
+		out[j++] = '=';
+	}
+	if(i == 2)
+	{
+		out[j++] = encode_ascii_base64(carry << 2);
+		out[j++] = '=';
+	}
+	return out;
+}
