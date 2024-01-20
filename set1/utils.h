@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-int get_length (char *str)
+int get_length (const char *str)
 {
     int len = 0;
     for(int i = 0; str[i] != '\0'; ++i)
@@ -11,7 +11,7 @@ int get_length (char *str)
     return len;
 }
 
-int print_string(char *str)
+int print_string(const char *str)
 {
     int len = 0;
     for(len = 0; str[len] != '\0'; ++len)
