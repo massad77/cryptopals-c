@@ -17,3 +17,40 @@ TEST(FixedXor, Set1_2)
     fixed_xor(in, key, res, sizeof(res));
     EXPECT_STREQ(res, want);
 }
+
+TEST(FixedXor, Set1_3)
+{
+	const char msg[] = "\x1b\x37\x37\x33\x31\x36\x3f\x78\x15\x1b\x7f\x2b\x78\x34\x31\x33\x3d\x78\x39\x78\x28\x37\x2d\x36\x3c\x78\x37\x3e\x78\x3a\x39\x3b\x37\x36";
+
+    class item_c{
+        public:
+            int score;
+            unsigned char key;
+            char plaintext[COUNT_OF(msg) + 1];
+    };
+
+    item_c items[256];
+    item_c res = {0};
+
+    /* try all possible keys and score result */
+    for(int key = 0, max = 0; key < COUNT_OF(items); ++key)
+    {
+        char new_msg[COUNT_OF(msg)] = {0};
+        for(int i = 0; i < COUNT_OF(new_msg); ++i)
+        {
+            items[key].plaintext[i] = msg[i] ^ key;
+        }
+        items[key].score = score_text(items[key].plaintext, \
+                                       COUNT_OF(items[key].plaintext));
+        items[key].key = key;
+
+        if(items[key].score > max)
+        {
+            max = items[key].score;
+            res = items[key];
+        }
+    }
+
+    EXPECT_STREQ(res.plaintext, "Cooking MC's like a pound of baconX");
+}
+
