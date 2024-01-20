@@ -10,8 +10,6 @@ endif()
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable (set1 main.c base64_conversion.c)
-
 # Add googletest
 include(FetchContent)
 FetchContent_Declare(
@@ -32,6 +30,5 @@ target_link_libraries(base64_test GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(base64_test)
 
-add_executable (set1-1 main.c base64_conversion.c)
-add_executable (set1-2 main.c base64_conversion.c fixed_xor.c)
+add_executable (set1 main.c base64_conversion.c fixed_xor.c)
 add_executable (test_fixed_xor test_fixed_xor.c fixed_xor.c)
