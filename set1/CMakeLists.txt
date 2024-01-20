@@ -31,3 +31,6 @@ target_link_libraries(base64_test GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(base64_test)
+
+add_executable (set1-1 main.c base64_conversion.c)
+add_executable (set1-2 main.c base64_conversion.c fixed_xor.c)
