@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <stdio.h>
 extern "C" {
+#include <openssl/crypto.h>
 #include "base64_conversion.h"
 #include "cryptopals.h"
 #include "fixed_xor.h"
@@ -107,7 +108,7 @@ TEST(BreakXOR, Set1_6)
     char *result = XORencode(decoded, out_len, key, keylen);
     EXPECT_STREQ(key, "Terminator X: Bring the noise");
     //printf("Key: %s\n", key);
-    printf("%s\n", result);
+    //printf("%s\n", result);
 
     free(res);
     free(key);
@@ -128,4 +129,29 @@ TEST(BreakXOR, Set1_6)
     free(transposed);
 
     fclose(fp);
+}
+
+TEST(OpenSSL, EnDecrypt)
+{
+    //printf("OpenSSL version: %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
+    unsigned char key[] = { 0x59, 0x45, 0x4c, 0x4c, 0x4f, 0x57, 0x20, 0x53,
+                            0x55, 0x42, 0x4d, 0x41, 0x52, 0x49, 0x4e, 0x45 }; // YELLOW SUBMARINE
+
+    unsigned char iv[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+    int ciphertext_len, decryptedtext_len;
+
+    /* Load config file, and other important initialisation */
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL);
+
+    const unsigned char *plaintext = (unsigned char const *)"A quick nimble.";
+    unsigned char ciphertext[128] = {0};
+    unsigned char decryptedtext[128] = {0};
+
+    ciphertext_len = aes128_ecb_encrypt(plaintext, strlen((char *)plaintext), ciphertext, key, iv);
+
+    decryptedtext_len = aes128_ecb_decrypt(ciphertext, ciphertext_len, decryptedtext, key, iv);
+
+    EXPECT_STREQ((const char *)plaintext, (const char *)decryptedtext);
 }
