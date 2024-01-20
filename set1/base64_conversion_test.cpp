@@ -48,63 +48,32 @@ TEST(DecodeBase16, EdgeCases)
     EXPECT_EQ(out, nullptr);
 }
 
-/*
-TEST(Base64Test, HexToBase64)
+TEST(DecodeBase64, Simple)
 {
-    char out_num[128];
+    char in[] = "TWFuTWFu";
+    char want[] = "ManMan";
+    char *out = NULL;
+    int len = 0;
 
-    char *test_strings[NUM_TESTS][NUM_TESTS] = {
-        { (char*)"0", (char*)"A" },
-        { (char*)"1", (char*)"B" },
-        { (char*)"a", (char*)"K" },
-        { (char*)"f", (char*)"P" },
-        { (char*)"3f", (char*)"/" },
-        { (char*)"40", (char*)"BA" },
-        { (char*)"81", (char*)"CB" },
-        { (char*)"a5a", (char*)"pa" },
-        { (char*)"5a5a", (char*)"Fpa" },
-        { (char*)"10000", (char*)"QAA" },
-        { (char*)"200000", (char*)"IAAA" },
-        { (char*)"1000000", (char*)"BAAAA" }
-    };
+    out = decode_base64(in, COUNT_OF(in), &len);
+    EXPECT_STREQ(out, want);
 
-    for(int i = 0; i < NUM_TESTS; ++i)
-    {
-        init_byte_array(out_num, sizeof(out_num));
-        int len = ascii_hex_to_base64(test_strings[i][0],
-                    get_length(test_strings[i][0]), out_num,
-                    sizeof(out_num));
-        EXPECT_EQ(out_num, test_strings[i][1]);
-    }
+    free(out);
 }
-*/
-/*
-TEST(Base64Test, Base64ToHex)
+
+TEST(DecodeBase64, Set1)
 {
-    char out_num[128];
+    char in[] = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t";
+    char want[] = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d";
+    char *plaintext = NULL;
+    char *out = NULL;
+    int len = 0;
+    int out_len = 0;
 
-    char *test_strings[NUM_TESTS][NUM_TESTS] = {
-        { "0", "A" },
-        { "1", "B" },
-        { "a", "K" },
-        { "f", "P" },
-        { "3f", "/" },
-        { "40", "BA" },
-        { "81", "CB" },
-        { "a5a", "pa" },
-        { "5a5a", "Fpa" },
-        { "10000", "QAA" },
-        { "200000", "IAAA" },
-        { "1000000", "BAAAA" }
-    };
+    plaintext = decode_base16(want, sizeof(want) - 1, &out_len);
+    out = decode_base64(in, COUNT_OF(in), &len);
+    EXPECT_STREQ(out, plaintext);
 
-    for(int i = 0; i < NUM_TESTS; ++i)
-    {
-        init_byte_array(out_num, sizeof(out_num));
-        int len = ascii_base64_to_hex(test_strings[i][1],
-                    get_length(test_strings[i][1]), out_num,
-                    sizeof(out_num));
-        EXPECT_EQ(out_num, test_strings[i][0]);
-    }
+    free(out);
+    free(plaintext);
 }
-*/
