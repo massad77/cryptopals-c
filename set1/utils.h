@@ -19,6 +19,13 @@ int print_string(const char *str)
     return len;
 }
 
+void print_string_hex(const char *str, int size)
+{
+    printf("0x");
+    for(int i = 0; i < size - 1; ++i) // do not print the trailing '\0'
+        printf("%02x", str[i]);
+}
+
 void init_byte_array(char *array, int length)
 {
     for(int i = 0; i < length; ++i)
