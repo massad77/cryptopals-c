@@ -41,3 +41,4 @@ gtest_discover_tests(cryptopals_test)
 
 add_executable (encodebase64 encode_base64.c base64_conversion.c)
 add_executable (decodebase64 decode_base64.c base64_conversion.c)
+add_executable (repeatingxor xor.c fixed_xor.c)
