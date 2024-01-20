@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
 	char *line = NULL;
 	size_t len = 0;
-	size_t nread = 0
+	size_t nread = 0;
 
 	if(argc < 2) {
 		printf("ERROR: Specify key\n");
