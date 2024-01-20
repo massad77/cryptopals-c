@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 
+/* source: https://stackoverflow.com/questions/1598773/is-there-a-standard-function-in-c-that-would-return-the-length-of-an-array/1598827#1598827 */
+#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+
 static inline int get_length (const char *str)
 {
     int len = 0;

@@ -12,4 +12,9 @@ int ascii_hex_to_base64(const char *in_num, int in_len, char *out_num, int out_l
 int ascii_base64_to_hex(const char *in_num, int in_len, char *out_num, int out_len);
 int decode_base16(const char *in_num, int in_len, char *out_num, int out_len);
 
+/* input: ascii encoded hex digit
+ *  output: value
+ */
+char decode_ascii_base16(char ascii);
+
 #endif

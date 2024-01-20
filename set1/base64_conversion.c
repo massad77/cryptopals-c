@@ -47,7 +47,7 @@ static char decode_ascii_base64(char base64_digit)
 /* input: ascii encoded hex digit
    output: value
 */
-static char decode_ascii_base16(char ascii)
+char decode_ascii_base16(char ascii)
 {
 	char value = -1;
 	if(ascii >= '0' && ascii <= '9') value = ascii - '0';
