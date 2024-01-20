@@ -31,8 +31,12 @@ target_link_libraries(base64_test GTest::gtest_main)
 add_executable(fixed_xor_test base64_conversion.c fixed_xor_test.cpp fixed_xor.c)
 target_link_libraries(fixed_xor_test GTest::gtest_main)
 
+add_executable(cryptopals_test cryptopals_test.cpp cryptopals.c)
+target_link_libraries(cryptopals_test GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(base64_test)
 gtest_discover_tests(fixed_xor_test)
+gtest_discover_tests(cryptopals_test)
 
 add_executable (set1 main.c base64_conversion.c fixed_xor.c)
