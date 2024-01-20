@@ -155,3 +155,61 @@ TEST(OpenSSL, EnDecrypt)
 
     EXPECT_STREQ((const char *)plaintext, (const char *)decryptedtext);
 }
+
+TEST(OpenSSL, Test1_7)
+{
+    FILE *fp;
+    int fsize = 0;
+
+    fp = fopen("../7.txt", "r");
+    if(fp == 0)
+    {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    /* get size */
+    fseek(fp, 0, SEEK_END);
+    fsize = ftell(fp);
+    if(fsize < 0)
+    {
+        perror("ftell");
+        exit(EXIT_FAILURE);
+    }
+
+    rewind(fp);
+
+    char *buf = (char *)calloc(fsize+1, sizeof(char));
+    char *decoded = NULL;
+
+    int c = 0, i = 0;
+    do {
+        c = fgetc(fp);
+        if(c != '\n')
+            buf[i++] = c;
+        else if (c == '\n')
+            fsize--;
+    } while(c != EOF);
+    buf[i-1] = '\0'; // clear the EOF in the buffer
+
+    int out_len;
+    decoded = decode_base64(buf, fsize, &out_len);
+    printf("len: %d\n", out_len);
+
+    unsigned char key[] = { 0x59, 0x45, 0x4c, 0x4c, 0x4f, 0x57, 0x20, 0x53,
+                            0x55, 0x42, 0x4d, 0x41, 0x52, 0x49, 0x4e, 0x45 }; // YELLOW SUBMARINE
+
+    int decryptedtext_len = 0;
+    unsigned char *decryptedtext = (unsigned char *)malloc((out_len+1) * sizeof(char));
+
+    /* Load config file, and other important initialisation */
+    OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL);
+
+    decryptedtext_len = aes128_ecb_decrypt((const unsigned char *)decoded, out_len, decryptedtext, key, NULL);
+    decryptedtext[decryptedtext_len] = '\0';
+    printf("%s\n", decryptedtext);
+
+    free(buf);
+    free(decoded);
+    free(decryptedtext);
+}

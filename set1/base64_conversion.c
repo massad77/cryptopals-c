@@ -110,6 +110,7 @@ char *decode_base64(char const * const in, const int in_len, int *out_len)
 				break;
 		}
 	}
+	*out_len = j;
 
 	return out;
 }
