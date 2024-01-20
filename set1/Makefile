@@ -1,8 +1,8 @@
 EXE = convert
 CFLAGS = -g -Wall
 LDFLAGS = -g
-SRC = main.c
-OBJ = main.o
+SRC = main.c base64_conversion.c
+OBJ = main.o base64_conversion.o
 
 # default rule: compile everything
 all: $(EXE)
