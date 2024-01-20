@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 extern "C" {
+#include "base64_conversion.h"
 #include "fixed_xor.h"
 #include "utils.h"
 }
@@ -24,16 +25,17 @@ TEST(FixedXor, Set1_3)
 
     class item_c{
         public:
-            int score;
+            float score;
             unsigned char key;
             char plaintext[COUNT_OF(msg) + 1];
     };
 
     item_c items[256];
     item_c res = {0};
+    float max = 0;
 
     /* try all possible keys and score result */
-    for(int key = 0, max = 0; key < COUNT_OF(items); ++key)
+    for(int key = 0; key < COUNT_OF(items); ++key)
     {
         char new_msg[COUNT_OF(msg)] = {0};
         for(int i = 0; i < COUNT_OF(new_msg); ++i)
@@ -54,3 +56,87 @@ TEST(FixedXor, Set1_3)
     EXPECT_STREQ(res.plaintext, "Cooking MC's like a pound of baconX");
 }
 
+TEST(Score, score)
+{
+    const char txt[] = "etaoinsrhdlu";
+    EXPECT_FLOAT_EQ(score_text(txt, COUNT_OF(txt)), 80.58);
+    const char txt1[] = "              ";
+    EXPECT_FLOAT_EQ(score_text(txt1, COUNT_OF(txt1)), 56.0);
+    const char txt2[] = "hello";
+    EXPECT_FLOAT_EQ(score_text(txt2, COUNT_OF(txt2)), 33.58);
+}
+
+TEST(FixedXor, Set1_4)
+{
+    FILE *fp;
+
+    fp = fopen("../4.txt", "r");
+    if(fp == 0)
+    {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    typedef struct {
+        int key;
+        float score;
+        char res[128];
+    } keyscore_t;
+
+    keyscore_t linescore[400];
+    char plaintext[128];
+
+    size_t line_size = 0;
+    ssize_t nread = 0;
+    char *line = NULL;
+    int len = 0;
+    int line_count = 0;
+    float max = 0;
+    int solution = 0;
+
+    do {
+        nread = getline(&line, &line_size, fp);
+        len = nread - 1; // do not care about '\n' and '\0'
+        init_byte_array(plaintext, len);
+        decode_base16(line, len, plaintext, len);
+
+        float local_max = 0;
+        int local_key = 0;
+        float score = 0;
+        for(unsigned char c = 0; c < 255; ++c)
+        {
+            singlebyte_xor(plaintext, linescore[line_count].res, len, c);
+            score = score_text(linescore[line_count].res, len/2);
+            if(score > local_max)
+            {
+                local_max = score;
+                local_key = c;
+            }
+        }
+        linescore[line_count].key = local_key;
+        linescore[line_count].score = local_max;
+        singlebyte_xor(plaintext, linescore[line_count].res, len, local_key);
+
+        if(local_max > max)
+        {
+            max = local_max;
+            solution = line_count;
+        }
+
+        ++line_count;
+    } while (nread > 0);
+
+    /* cut string */
+    for(int i = 0; i < COUNT_OF(linescore[solution].res); ++i)
+    {
+        if(linescore[solution].res[i] == '\n')
+        {
+            linescore[solution].res[i] = '\0';
+            break;
+        }
+    }
+    EXPECT_STREQ(linescore[solution].res, "Now that the party is jumping");
+
+    free(line);
+    fclose(fp);
+}

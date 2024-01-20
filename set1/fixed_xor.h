@@ -9,13 +9,13 @@ int fixed_xor(const char *in1, const char *in2, char *result, int length);
  * Inout: buf
  * XORs 'buf' of length 'len with 'key'
  */
-void singlebyte_xor(char *buf, int len, const char key);
+void singlebyte_xor(char const * const buf, char *res, int len, const char key);
 
 /*
  * input: text, size
  * Score text based on most common chars in english
  * output: score
  */
-int score_text(const char txt[], int size);
+float score_text(const char txt[], int size);
 
 #endif // __FIXED_XOR_H_
