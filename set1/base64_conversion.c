@@ -67,6 +67,22 @@ static char encode_ascii_base16(unsigned char value)
 	return ascii;
 }
 
+/* input: hex-encoded string with ASCII characters
+ * output: binary data
+ */
+int decode_base16(const char *in, const int in_len, char *out, int out_len)
+{
+	if(out_len < in_len / 2) return -1;
+	if(in == NULL || out == NULL) return -1;
+
+	for(int i = 0; i < in_len / 2; i++)
+	{
+		out[i] |= decode_ascii_base16(in[i*2]) << 4;
+		out[i] |= decode_ascii_base16(in[i*2+1]);
+	}
+	return 0;
+}
+
 /* input: char * -> number as hex digits, ascii coded
  * output: char * -> number as base_radix digits, ascii coded
  */
