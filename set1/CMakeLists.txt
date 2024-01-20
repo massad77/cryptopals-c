@@ -34,3 +34,4 @@ gtest_discover_tests(base64_test)
 
 add_executable (set1-1 main.c base64_conversion.c)
 add_executable (set1-2 main.c base64_conversion.c fixed_xor.c)
+add_executable (test_fixed_xor test_fixed_xor.c fixed_xor.c)
