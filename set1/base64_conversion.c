@@ -150,13 +150,13 @@ char *encode_base64(char const * const in, const int in_len, int *out_len)
 		}
 	}
 	/* padding */
-	if(i == 1)
+	if(i%3 == 1)
 	{
 		out[j++] = encode_ascii_base64((in[i-1] & 0x03) << 4);
 		out[j++] = '=';
 		out[j++] = '=';
 	}
-	if(i == 2)
+	if(i%3 == 2)
 	{
 		out[j++] = encode_ascii_base64(carry << 2);
 		out[j++] = '=';
