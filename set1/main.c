@@ -1,7 +1,10 @@
 // https://www.cryptopals.com/sets/1/challenges/1
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <string.h>
+
+#define NUM_TESTS 8
 
 static int get_length (char *str)
 {
@@ -11,6 +14,28 @@ static int get_length (char *str)
 		++len;
 	}
 	return len;
+}
+
+static int print_test_header(char *input, char *expected_output)
+{
+	printf("Input: ");
+	for(int i = 0; input[i] != '\0'; ++i) printf("%c", input[i]);
+	printf(" Expected output: ");
+	for(int i = 0; input[i] != '\0'; ++i) printf("%c", expected_output[i]);
+	printf("\n");
+	return 0;
+}
+
+static int reverse_array(char *array, int length)
+{
+	char tmp;
+	for(int i = 0; i < length / 2; ++i)
+	{
+		tmp = array[i];
+		array[i] = array[length - 1 - i];
+		array[length - 1 - i] = tmp;
+	}
+	return 0;
 }
 
 /* input: value 
@@ -87,6 +112,12 @@ static int hex_to_base64(char *in_num, int in_len, char *out_num, int out_len)
 		out_num[k++] = base64_to_ascii((0x0f & nipple2 >> 2));
 	}
 
+	/* delete leading 0 -> 'A'(base64) and reduce size of array by one */
+	if((k > 1) & (out_num[k-1] == 'A')) out_num[--k] = 0x00;
+
+
+	/* Put MSB at the beginning of the array and LSB at the end */
+	reverse_array(out_num, k);
 	return k;
 }
 
@@ -100,29 +131,35 @@ static int base64_to_hex(char *in_num, int in_len, char *out_num, int out_len)
 
 int main(int argc, char *argv[])
 {
-	if(argc > 1)
+	char out_num[128];
+	for(int i = 0; i < 128; ++i)
+		out_num[i] = 0;
+
+	char *test_strings[NUM_TESTS][NUM_TESTS] = {
+		{ "0", "A" },
+		{ "1", "B" },
+		{ "a", "K" },
+		{ "A", "K" },
+		{ "f", "P" },
+		{ "3f", "/" },
+		{ "40", "BA" },
+		{ "81", "CB" }
+	};
+
+	for(int i = 0; i < NUM_TESTS; ++i)
 	{
-		char *num_str = argv[1];
-		char out_num[128];
-		int len = 0;
-		for(int i = 0; i < 128; ++i)
-			out_num[i] = 0;
-		len = hex_to_base64(num_str, get_length(num_str), out_num, sizeof(out_num));
-		if(len < 0)
+		print_test_header(test_strings[i][0], test_strings[i][1]);
+		hex_to_base64(test_strings[i][0],
+				    get_length(test_strings[i][0]), out_num,
+				    sizeof(out_num));
+
+		if(strcmp(out_num, test_strings[i][1]))
 		{
-			printf("FAIL\n");
+			printf("Test failed!\n");
 			return -1;
 		}
-
-		for(int i = len; i >= 0; --i)
-		{
-			printf("%c", out_num[i]);
-		}
 	}
-	else
-	{
-		printf("Pass hex number e.g 'a1'...");
-	}
+	printf("All tests passed!");
 
 	return 0;
 }
