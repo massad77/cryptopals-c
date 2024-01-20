@@ -43,5 +43,21 @@ int main(int argc, char *argv[])
 	print_string_hex(res, sizeof(res));
 	printf("\n");
 
+	printf("-----Set1-3: Single byte XOR cipher-----\n");
+
+	const char msg[] = "\x1b\x37\x37\x33\x31\x36\x3f\x78\x15\x1b\x7f\x2b\x78\x34\x31\x33\x3d\x78\x39\x78\x28\x37\x2d\x36\x3c\x78\x37\x3e\x78\x3a\x39\x3b\x37\x36";
+
+	int masterkey = score_text(msg, sizeof(msg));
+
+	/* decrypt */
+	char letter = 0;
+	printf("Masterkey used: %d\n", masterkey);
+	for(int i = 0; i < sizeof(msg) - 1; ++i) // do not decrypt terminating '\0'
+	{
+		letter = msg[i] ^ masterkey;
+		printf("%c", letter);
+	}
+	printf("\n");
+
 	return 0;
 }
