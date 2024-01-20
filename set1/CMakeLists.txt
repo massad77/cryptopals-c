@@ -27,8 +27,11 @@ enable_testing()
 add_executable(base64_test base64_conversion_test.cpp base64_conversion.c)
 target_link_libraries(base64_test GTest::gtest_main)
 
+add_executable(fixed_xor_test fixed_xor_test.cpp fixed_xor.c)
+target_link_libraries(fixed_xor_test GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(base64_test)
+gtest_discover_tests(fixed_xor_test)
 
 add_executable (set1 main.c base64_conversion.c fixed_xor.c)
-add_executable (test_fixed_xor test_fixed_xor.c fixed_xor.c)
