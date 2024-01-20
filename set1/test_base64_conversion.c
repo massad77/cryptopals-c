@@ -1,26 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "base64_conversion.h"
+#include "utils.h"
 
 #define NUM_TESTS 12
-
-static int get_length (char *str)
-{
-    int len = 0;
-    for(int i = 0; str[i] != '\0'; ++i)
-    {
-        ++len;
-    }
-    return len;
-}
-
-static int print_string(char *str)
-{
-    int len = 0;
-    for(len = 0; str[len] != '\0'; ++len)
-        printf("%c", str[len]);
-    return len;
-}
 
 static int print_test_header(char *input, char *expected_output)
 {
@@ -30,14 +13,6 @@ static int print_test_header(char *input, char *expected_output)
     for(int i = 0; expected_output[i] != '\0'; ++i) printf("%c", expected_output[i]);
     printf("\n");
     return 0;
-}
-
-static void init_byte_array(char *array, int length)
-{
-    for(int i = 0; i < length; ++i)
-    {
-        array[i] = 0x00;
-    }
 }
 
 int main(int argc, char *argv[])
