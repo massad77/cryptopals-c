@@ -93,38 +93,15 @@ TEST(BreakXOR, Set1_6)
     EXPECT_EQ(transposed[keylen-1][3], decoded[(3*keylen)+(keylen-1)]);
 
     /* break singlebyte xor */
-    typedef struct{
-        int key;
-        float score;
-        char *res;
-    } keyscore_t;
-
-    keyscore_t keyscore;
-    keyscore.res = (char *)malloc((out_len/keylen + 1) * sizeof(char));
-    keyscore.res[out_len/keylen] = '\0';
+    char *res = (char *)malloc((out_len/keylen + 1) * sizeof(char));
+    res[out_len/keylen] = '\0';
 
     char *key = (char *)malloc((keylen + 1) * sizeof(char));
     key[keylen] = '\0';
 
     for(int i = 0; i < keylen; ++i)
     {
-        float local_max = 0;
-        int local_key = 0;
-        float score = 0;
-        for(unsigned char c = 255; c > 0; --c)
-        {
-            singlebyte_xor(transposed[i], keyscore.res, out_len/keylen, c);
-            score = score_text(keyscore.res, out_len/keylen);
-            if(score > local_max)
-            {
-                local_max = score;
-                local_key = c;
-            }
-        }
-        key[i] = local_key;
-        keyscore.key = local_key;
-        keyscore.score = local_max;
-        //printf("Block %d, Key 0x%x, score %f\n", i, local_key, local_max);
+        key[i] = break_singlebyte_xor(transposed[i], res, out_len/keylen);
     }
 
     char *result = XORencode(decoded, out_len, key, keylen);
@@ -132,7 +109,7 @@ TEST(BreakXOR, Set1_6)
     //printf("Key: %s\n", key);
     printf("%s\n", result);
 
-    free(keyscore.res);
+    free(res);
     free(key);
     /* clean up */
     free(decoded);

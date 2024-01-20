@@ -88,6 +88,24 @@ float score_text(const char txt[], int size)
 	return score;
 }
 
+char break_singlebyte_xor(char const * const buf, char *res, int len)
+{
+	float max = 0;
+	int key = 0;
+	float score = 0;
+	for(unsigned char c = 255; c > 0; --c)
+	{
+		singlebyte_xor(buf, res, len, c);
+		score = score_text(res, len);
+		if(score > max)
+		{
+			max = score;
+			key = c;
+		}
+	}
+	return key;
+}
+
 char *XORencode(char const * const in, int len, char const * const key, int key_len)
 {
 	char *out = calloc(len+1, sizeof(char));

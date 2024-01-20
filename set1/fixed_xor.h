@@ -19,6 +19,12 @@ void singlebyte_xor(char const * const buf, char *res, int len, const char key);
 float score_text(const char txt[], int size);
 
 /*
+ * Takes XOR encrypted buffer and empty buffer.
+ * Returns decrypted result in buffer and decryption key.
+ */
+char break_singlebyte_xor(char const * const buf, char *res, int len);
+
+/*
  * input: text to encode, key, lengths
  * output: encoded text
  */
