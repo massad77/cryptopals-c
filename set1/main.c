@@ -4,7 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NUM_TESTS 8
+#define NUM_TESTS 12
+
+/* proposal: base64_to_ascii rename to 'encode_ascii_base64'
+ * proposal: ascii_to_base16 rename to 'decode_ascii_base16'
+ * etc.
+ */
 
 static int get_length (char *str)
 {
@@ -16,16 +21,34 @@ static int get_length (char *str)
 	return len;
 }
 
+static int print_string(char *str)
+{
+	int len = 0;
+	for(len = 0; str[len] != '\0'; ++len)
+		printf("%c", str[len]);
+	return len;
+}
+
 static int print_test_header(char *input, char *expected_output)
 {
 	printf("Input: ");
 	for(int i = 0; input[i] != '\0'; ++i) printf("%c", input[i]);
 	printf(" Expected output: ");
-	for(int i = 0; input[i] != '\0'; ++i) printf("%c", expected_output[i]);
+	for(int i = 0; expected_output[i] != '\0'; ++i) printf("%c", expected_output[i]);
 	printf("\n");
 	return 0;
 }
 
+static void init_byte_array(char *array, int length)
+{
+	for(int i = 0; i < length; ++i)
+	{
+		array[i] = 0x00;
+	}
+}
+
+/* swap the last byte in the array with the first one etc.
+ */
 static int reverse_array(char *array, int length)
 {
 	char tmp;
@@ -41,9 +64,9 @@ static int reverse_array(char *array, int length)
 /* input: value 
    output: ascii encoded representation of value
 */
-static char base64_to_ascii(char num)
+static char encode_ascii_base64(char num)
 {
-	char base64_digit;
+	char base64_digit = '\0';
 	if(num >= 0 && num <= 0x19 /* 25 */) base64_digit = num + 'A';
 	if(num >= 26 && num <= 0x33 /* 51 */) base64_digit = num + 'a' - 26;
 	if(num >= 52 && num <= 0x3D /* 61 */) base64_digit = num + '0' - 52;
@@ -52,22 +75,47 @@ static char base64_to_ascii(char num)
 	return base64_digit;
 }
 
+/* input: ascii encoded representation of num (base64)
+   output: num
+*/
+static char decode_ascii_base64(char base64_digit)
+{
+	char num = -1;
+	if(base64_digit >= 'A' && base64_digit <= 'Z' /* 25 */) num = base64_digit - 'A';
+	if(base64_digit >= 'a' && base64_digit <= 'z' /* 51 */) num = base64_digit - 'a' + 26;
+	if(base64_digit >= '0' && base64_digit <= '9' /* 61 */) num = base64_digit - '0' + 52;
+	if(base64_digit == '+' /* 62 */) num = 0x3E;
+	if(base64_digit == '/' /* 63 */) num = 0x3F;
+	return num;
+}
+
 /* input: ascii encoded hex digit
    output: value
 */
-static char ascii_to_base16(char ascii)
+static char decode_ascii_base16(char ascii)
 {
-	char value;
+	char value = -1;
 	if(ascii >= '0' && ascii <= '9') value = ascii - '0';
 	if(ascii >= 'a' && ascii <= 'f') value = ascii - 'a' + 10;
 	if(ascii >= 'A' && ascii <= 'F') value = ascii - 'A' + 10;
 	return value;
 }
 
+/* input: 4 bits
+   output: ascii encoded value
+*/
+static char encode_ascii_base16(unsigned char value)
+{
+	char ascii = '\0';
+	if(value >= 0 && value <= 9) ascii = value + '0';
+	if(value >= 10 && value <= 15) ascii = value + 'a' - 10;
+	return ascii;
+}
+
 /* input: char * -> number as hex digits, ascii coded
  * output: char * -> number as base_radix digits, ascii coded
  */
-static int hex_to_base64(char *in_num, int in_len, char *out_num, int out_len)
+static int ascii_hex_to_base64(char *in_num, int in_len, char *out_num, int out_len)
 {
 	if(in_num == NULL || out_num == NULL) return -1;
 
@@ -82,19 +130,19 @@ static int hex_to_base64(char *in_num, int in_len, char *out_num, int out_len)
 		switch(j)
 		{
 		case 0:
-			nipple1 = ascii_to_base16(in_num[i]);
+			nipple1 = decode_ascii_base16(in_num[i]);
 			++j;
 			break;
 		case 1:
-			nipple2 = ascii_to_base16(in_num[i]);
+			nipple2 = decode_ascii_base16(in_num[i]);
 			byte = (0x3f & ((nipple2 << 4) | (nipple1)));
-			out_num[k++] = base64_to_ascii(byte);
+			out_num[k++] = encode_ascii_base64(byte);
 			++j;
 			break;
 		case 2:
-			nipple1 = ascii_to_base16(in_num[i]);
+			nipple1 = decode_ascii_base16(in_num[i]);
 			byte = (nipple1 << 2) | ((0x0c & nipple2) >> 2); 
-			out_num[k++] = base64_to_ascii(byte);
+			out_num[k++] = encode_ascii_base64(byte);
 			j = 0;
 			break;
 		default:
@@ -103,18 +151,17 @@ static int hex_to_base64(char *in_num, int in_len, char *out_num, int out_len)
 
 	}
 	/* one extra nipple */
-	if(j ==1)
+	if(j == 1)
 	{
-		out_num[k++] = base64_to_ascii(nipple1);
+		out_num[k++] = encode_ascii_base64(nipple1);
 	}
 	if(j == 2)
 	{
-		out_num[k++] = base64_to_ascii((0x0f & nipple2 >> 2));
+		out_num[k++] = encode_ascii_base64((0x0f & nipple2 >> 2));
 	}
 
 	/* delete leading 0 -> 'A'(base64) and reduce size of array by one */
 	if((k > 1) & (out_num[k-1] == 'A')) out_num[--k] = 0x00;
-
 
 	/* Put MSB at the beginning of the array and LSB at the end */
 	reverse_array(out_num, k);
@@ -124,42 +171,155 @@ static int hex_to_base64(char *in_num, int in_len, char *out_num, int out_len)
 /* input: char * -> number as base_radix digits, ascii coded
  * output: char * -> number as hex digits, ascii coded
  */
-static int base64_to_hex(char *in_num, int in_len, char *out_num, int out_len)
+static int ascii_base64_to_hex(char *in_num, int in_len, char *out_num, int out_len)
 {
-	return 0;
+	if(in_num == NULL || out_num == NULL) return -1;
+
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	char part0 = 0x00;
+	char part1 = 0x00;
+	char part2 = 0x00;
+	char part3 = 0x00;
+	char byte0 = 0x00;
+	char byte1 = 0x00;
+	char byte2 = 0x00;
+	for(i = (in_len - 1); i >= 0; --i)
+	{
+		switch(j)
+		{
+		case 0:
+			part0 = decode_ascii_base64(in_num[i]); /* 6 bits */
+			++j;
+			break;
+		case 1:
+			part1 = decode_ascii_base64(in_num[i]);
+			byte0 = (((0x03 & part1) << 6) | part0);
+			/* two chars are necessary to represent byte in ascii */
+			out_num[k++] = encode_ascii_base16(byte0 & 0x0f);
+			out_num[k++] = encode_ascii_base16((byte0 & 0xf0) >> 4);
+			++j;
+			break;
+		case 2:
+			part2 = decode_ascii_base64(in_num[i]);
+			byte1 = (((0x0f & part2) << 4) | (0x3c & part1) >> 2); 
+			/* two chars are necessary to represent byte in ascii */
+			out_num[k++] = encode_ascii_base16(byte1 & 0x0f);
+			out_num[k++] = encode_ascii_base16((byte1 & 0xf0) >> 4);
+			++j;
+			break;
+		case 3:
+			part3 = decode_ascii_base64(in_num[i]);
+			byte2 = ((part3 << 2) | (0x30 & part2) >> 4);
+			/* two chars are necessary to represent byte in ascii */
+			out_num[k++] = encode_ascii_base16(byte2 & 0x0f);
+			out_num[k++] = encode_ascii_base16((byte2 & 0xf0) >> 4);
+			j = 0;
+			break;
+		default:
+			return -1;
+		}
+
+	}
+	switch(j)
+	{
+	case 1:
+		out_num[k++] = encode_ascii_base16(part0 & 0x0f);
+		out_num[k++] = encode_ascii_base16((part0 & 0xf0) >> 4);
+		break;
+	case 2:
+		part1 = (0xfc & part1) >> 2;
+		if(part1 == 0x00) break;
+		out_num[k++] = encode_ascii_base16(part1 & 0x0f);
+		out_num[k++] = encode_ascii_base16((part1 & 0xf0) >> 4);
+		break;
+	case 3:
+		part2 = (0xf0 & part2) >> 4;
+		if(part2 == 0x00) break;
+		out_num[k++] = encode_ascii_base16(part2 & 0x0f);
+		out_num[k++] = encode_ascii_base16((part2 & 0xf0) >> 4);
+		break;
+	default:
+		break;
+	}
+
+	/* delete leading 0 -> '0'(base16) and reduce size of array by one */
+	if((k > 1) && (out_num[k-1] == '0')) out_num[--k] = '\0';
+
+	/* Put MSB at the beginning of the array and LSB at the end */
+	reverse_array(out_num, k);
+
+	return k;
 }
 
 int main(int argc, char *argv[])
 {
 	char out_num[128];
-	for(int i = 0; i < 128; ++i)
-		out_num[i] = 0;
 
 	char *test_strings[NUM_TESTS][NUM_TESTS] = {
 		{ "0", "A" },
 		{ "1", "B" },
 		{ "a", "K" },
-		{ "A", "K" },
 		{ "f", "P" },
 		{ "3f", "/" },
 		{ "40", "BA" },
-		{ "81", "CB" }
+		{ "81", "CB" },
+		{ "a5a", "pa" },
+		{ "5a5a", "Fpa" },
+		{ "10000", "QAA" },
+		{ "200000", "IAAA" },
+		{ "1000000", "BAAAA" }
 	};
 
 	for(int i = 0; i < NUM_TESTS; ++i)
 	{
+		init_byte_array(out_num, sizeof(out_num));
 		print_test_header(test_strings[i][0], test_strings[i][1]);
-		hex_to_base64(test_strings[i][0],
+		int len = ascii_hex_to_base64(test_strings[i][0],
 				    get_length(test_strings[i][0]), out_num,
 				    sizeof(out_num));
 
 		if(strcmp(out_num, test_strings[i][1]))
 		{
 			printf("Test failed!\n");
+			if(len > 0) print_string(out_num);
 			return -1;
 		}
 	}
-	printf("All tests passed!");
+	printf("All tests passed!\n");
+
+	for(int i = 0; i < NUM_TESTS; ++i)
+	{
+		init_byte_array(out_num, sizeof(out_num));
+		print_test_header(test_strings[i][1], test_strings[i][0]);
+		int len = ascii_base64_to_hex(test_strings[i][1],
+				    get_length(test_strings[i][1]), out_num,
+				    sizeof(out_num));
+
+		if(strcmp(out_num, test_strings[i][0]))
+		{
+			printf("Test failed!\n");
+			if(len > 0) print_string(out_num);
+			return -1;
+		}
+	}
+	printf("All tests passed!\n");
+
+	if(argc > 1)
+	{
+		init_byte_array(out_num, sizeof(out_num));
+		ascii_hex_to_base64(argv[1], get_length(argv[1]), out_num,
+			      sizeof(out_num));
+		print_string(out_num);
+		printf("\n");
+
+		char hex_num[128];
+		init_byte_array(hex_num, sizeof(hex_num));
+		ascii_base64_to_hex(out_num, get_length(out_num), hex_num,
+			      sizeof(hex_num));
+		print_string(hex_num);
+	}
 
 	return 0;
 }
