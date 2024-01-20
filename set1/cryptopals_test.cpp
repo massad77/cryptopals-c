@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <stdio.h>
+#include <string.h>
 extern "C" {
 #include <openssl/crypto.h>
 #include "base64_conversion.h"
@@ -194,7 +195,6 @@ TEST(OpenSSL, Test1_7)
 
     int out_len;
     decoded = decode_base64(buf, fsize, &out_len);
-    printf("len: %d\n", out_len);
 
     unsigned char key[] = { 0x59, 0x45, 0x4c, 0x4c, 0x4f, 0x57, 0x20, 0x53,
                             0x55, 0x42, 0x4d, 0x41, 0x52, 0x49, 0x4e, 0x45 }; // YELLOW SUBMARINE
@@ -207,9 +207,62 @@ TEST(OpenSSL, Test1_7)
 
     decryptedtext_len = aes128_ecb_decrypt((const unsigned char *)decoded, out_len, decryptedtext, key, NULL);
     decryptedtext[decryptedtext_len] = '\0';
-    printf("%s\n", decryptedtext);
+    //printf("%s\n", decryptedtext);
 
     free(buf);
     free(decoded);
     free(decryptedtext);
+}
+
+TEST(OpenSSL, Set1_8)
+{
+    const int CHUNKSIZE = 16;
+    FILE *fp;
+
+    fp = fopen("../8.txt", "r");
+    if(fp == 0)
+    {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    size_t line_size = 0;
+    ssize_t nread = 0;
+    char *line = NULL;
+    int len = 0;
+    int out_len = 0;
+    char *plaintext = NULL;
+    int linescore[400];
+    int line_count = 0;
+    int max = 0;
+    int line_max = 0;
+
+    do {
+        nread = getline(&line, &line_size, fp);
+        len = nread - 1; // do not care about '\n' and '\0'
+        plaintext = decode_base16(line, len, &out_len);
+
+        for(int i = 0; i < (out_len / CHUNKSIZE) - 1; ++i)
+        {
+            for(int j = i + 1; j < (out_len / CHUNKSIZE); ++j)
+            {
+                if(0 == memcmp(&plaintext[i*CHUNKSIZE], &plaintext[j * CHUNKSIZE], CHUNKSIZE))
+                    ++linescore[line_count];
+            }
+        }
+
+        if(linescore[line_count] > max)
+        {
+            line_max = line_count;
+            max = linescore[line_count];
+        }
+
+        ++line_count;
+        free(plaintext);
+    } while(nread > 0);
+
+    printf("max: %d, line: %d\n", linescore[line_max], line_max);
+    printf("Line %d is probably ECB encoded\n", line_max+1);
+    free(line);
+    fclose(fp);
 }
