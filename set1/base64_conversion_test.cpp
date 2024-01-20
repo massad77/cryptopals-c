@@ -13,27 +13,34 @@ TEST(DecodeBase16, GoodCase)
     /* single digit conversion */
     out = decode_base16("A", 1, &len);
     EXPECT_EQ(out[0], '\x0a');
+    free(out);
     out = decode_base16("f", 1, &len);
     EXPECT_EQ(out[0], '\x0f');
+    free(out);
 
     /* two digit conversion */
     out = decode_base16("AA", 2, &len);
     EXPECT_EQ(out[0], '\xaa');
+    free(out);
     out = decode_base16("F0", 2, &len);
     EXPECT_EQ(out[0], '\xf0');
+    free(out);
     out = decode_base16("AF", 2, &len);
     EXPECT_EQ(out[0], '\xaf');
+    free(out);
 
     /* five digit conversion */
     out = decode_base16("AA55E", 5, &len);
     EXPECT_EQ(out[0], '\xaa');
     EXPECT_EQ(out[1], '\x55');
     EXPECT_EQ(out[2], '\xe0');
+    free(out);
 
     out = decode_base16("fa0ce", 5, &len);
     EXPECT_EQ(out[0], '\xfa');
     EXPECT_EQ(out[1], '\x0c');
     EXPECT_EQ(out[2], '\xe0');
+    free(out);
 }
 
 TEST(DecodeBase16, EdgeCases)
@@ -42,10 +49,13 @@ TEST(DecodeBase16, EdgeCases)
     int len = 0;
     out = decode_base16(NULL, 0, &len);
     EXPECT_EQ(out, nullptr);
+    free(out);
     out = decode_base16(NULL, 3, &len);
     EXPECT_EQ(out, nullptr);
+    free(out);
     out = decode_base16("AA", 0, &len);
     EXPECT_EQ(out, nullptr);
+    free(out);
 }
 
 TEST(DecodeBase64, Simple)
@@ -70,6 +80,7 @@ TEST(DecodeBase64, Padding)
 
     out = decode_base64(in, COUNT_OF(in), &len);
     EXPECT_STREQ(out, want);
+    free(out);
 
     char in1[] = "bGlnaHQgd28=";
     char want1[] = "light wo";
@@ -77,7 +88,6 @@ TEST(DecodeBase64, Padding)
 
     out = decode_base64(in1, COUNT_OF(in1), &len);
     EXPECT_STREQ(out, want1);
-
     free(out);
 }
 

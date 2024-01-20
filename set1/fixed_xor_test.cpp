@@ -124,6 +124,7 @@ TEST(FixedXor, Set1_4)
         }
 
         ++line_count;
+        free(plaintext);
     } while (nread > 0);
 
     /* cut string */
@@ -137,7 +138,6 @@ TEST(FixedXor, Set1_4)
     }
     EXPECT_STREQ(linescore[solution].res, "Now that the party is jumping");
 
-    free(plaintext);
     free(line);
     fclose(fp);
 }
