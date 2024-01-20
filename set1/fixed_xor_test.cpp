@@ -137,6 +137,7 @@ TEST(FixedXor, Set1_4)
     }
     EXPECT_STREQ(linescore[solution].res, "Now that the party is jumping");
 
+    free(plaintext);
     free(line);
     fclose(fp);
 }
@@ -151,4 +152,6 @@ TEST(FixedXor, Set1_5)
     res = XORencode(in, COUNT_OF(in)-1, key, get_length(key)); // drop trailing '\0' from in
 
     EXPECT_STREQ(res, want);
+
+    free(res);
 }
