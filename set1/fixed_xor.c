@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdlib.h>
 #include "utils.h"
 
 typedef struct {
@@ -85,4 +86,18 @@ float score_text(const char txt[], int size)
 	 */
 
 	return score;
+}
+
+char *XORencode(char const * const in, int len, char const * const key, int key_len)
+{
+	char *out = calloc(len, sizeof(char));
+
+	/* ignore '\0' at the end */
+	for(int i = 0, j = 0; i < len - 1; ++i)
+	{
+		out[i] = in[i] ^ key[j++];
+		j %= (key_len - 1);
+	}
+
+	return out;
 }

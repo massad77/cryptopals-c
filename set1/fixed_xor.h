@@ -18,4 +18,10 @@ void singlebyte_xor(char const * const buf, char *res, int len, const char key);
  */
 float score_text(const char txt[], int size);
 
+/*
+ * input: text to encode, key, lengths
+ * output: encoded text
+ */
+char *XORencode(char const * const in, int len, char const * const key, int key_len);
+
 #endif // __FIXED_XOR_H_
