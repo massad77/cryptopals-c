@@ -82,6 +82,10 @@ static int hex_to_base64(char *in_num, int in_len, char *out_num, int out_len)
 	{
 		out_num[k++] = base64_to_ascii(nipple1);
 	}
+	if(j == 2)
+	{
+		out_num[k++] = base64_to_ascii((0x0f & nipple2 >> 2));
+	}
 
 	return k;
 }
