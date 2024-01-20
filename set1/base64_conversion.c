@@ -75,10 +75,22 @@ int decode_base16(const char *in, const int in_len, char *out, int out_len)
 	if(out_len < in_len / 2) return -1;
 	if(in == NULL || out == NULL) return -1;
 
+	if(in_len == 1)
+	{
+		out[0] = decode_ascii_base16(in[0]);
+		return 0;
+	}
+
 	for(int i = 0; i < in_len / 2; i++)
 	{
 		out[i] |= decode_ascii_base16(in[i*2]) << 4;
 		out[i] |= decode_ascii_base16(in[i*2+1]);
+	}
+
+	/* if odd number of ascii chars, consider the last one */
+	if(in_len % 2 != 0)
+	{
+		out[(in_len - 1)/ 2] = decode_ascii_base16(in[in_len-1]) << 4;
 	}
 	return 0;
 }
